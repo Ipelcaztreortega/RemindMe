@@ -107,6 +107,30 @@ function TaskPage() {
         return <div>Reminder set not found.</div>;
     }
 
+    const handleDeleteReminderSet = async () => {
+        if (!reminderSet) return;
+
+        if (window.confirm('Are you sure you want to delete this entire reminder set? This action cannot be undone.')) {
+            try {
+                // First, delete all tasks in the reminder set
+                const tasksCollection = collection(db, 'reminderSets', reminderSet.id, 'tasks');
+                const tasksSnapshot = await getDocs(tasksCollection);
+                const deleteTasks = tasksSnapshot.docs.map(doc => 
+                    deleteDoc(doc.ref)
+                );
+                await Promise.all(deleteTasks);
+
+                // Then, delete the reminder set document
+                await deleteDoc(doc(db, 'reminderSets', reminderSet.id));
+
+                alert('Reminder set deleted successfully!');
+                router.push('/ViewReminders');
+            } catch (error) {
+                console.error('Error deleting reminder set: ', error);
+                alert('Error deleting reminder set.');
+            }
+        }
+    };
     return (
         <div className={styles.container}>
             <h1 className={styles.title}>{reminderSet.name}</h1>
@@ -122,9 +146,14 @@ function TaskPage() {
                     </div>
                 ))}
             </div>
-            <button onClick={handleConfirm} className={styles.confirmButton}>
-                Confirm and Set Reminder Time
-            </button>
+            <div className={styles.buttonContainer}>
+                <button onClick={handleConfirm} className={styles.confirmButton}>
+                    Confirm and Set Reminder Time
+                </button>
+                <button onClick={handleDeleteReminderSet} className={styles.deleteSetButton}>
+                    Delete Reminder Set
+                </button>
+            </div>
         </div>
     );
 }

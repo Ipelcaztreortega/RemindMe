@@ -106,3 +106,23 @@
 .confirmButton:hover {
     background-color: #45a049;
 }
+
+.buttonContainer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.deleteSetButton {
+    background-color: #ff4d4d;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.deleteSetButton:hover {
+    background-color: #ff1a1a;
+}
