@@ -1,15 +1,15 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import { collection, getDocs, deleteDoc, doc, query, where } from 'firebase/firestore';
+import React, { useEffect, useState, useCallback } from 'react';
+import { collection, getDocs, deleteDoc, doc, getDoc } from 'firebase/firestore';
 import { db, auth } from '../../config/firebaseConfig';
-import { useRouter} from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import styles from './Tasks.module.css';
 
 interface Task {
     id: string;
-    category: string;
-    date: string;
-    task: string;
+    Category: string;
+    Date: string;
+    Task: string;
 }
 
 interface ReminderSet {
@@ -19,55 +19,68 @@ interface ReminderSet {
 }
 
 function TaskPage() {
-    const [reminderSets, setReminderSets] = useState<ReminderSet[]>([]);
+    const [reminderSet, setReminderSet] = useState<ReminderSet | null>(null);
     const [user, setUser] = useState(auth.currentUser);
+    const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const setId = searchParams.get('setId');
+
+    const fetchReminderSet = useCallback(async (setId: string) => {
+        setIsLoading(true);
+        try {
+            const reminderSetDocRef = doc(db, 'reminderSets', setId);
+            const reminderSetDoc = await getDoc(reminderSetDocRef);
+            
+            if (reminderSetDoc.exists()) {
+                const tasksCollection = collection(reminderSetDocRef, 'tasks');
+                const tasksSnapshot = await getDocs(tasksCollection);
+                const tasks = tasksSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                } as Task));
+
+                setReminderSet({
+                    id: reminderSetDoc.id,
+                    name: reminderSetDoc.data().name,
+                    tasks: tasks
+                });
+            } else {
+                console.error('Reminder set not found');
+                router.push('/ViewReminders');
+            }
+        } catch (error) {
+            console.error('Error fetching reminder set:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [router]);
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
             setUser(user);
             if (!user) {
                 router.push('/Login');
+            } else if (setId) {
+                fetchReminderSet(setId);
             } else {
-                fetchReminderSets(user.uid);
+                router.push('/ViewReminders');
             }
         });
 
         return () => unsubscribe();
-    }, [router]);
+    }, [router, setId, fetchReminderSet]);
 
-    const fetchReminderSets = async (userId: string) => {
-        const reminderSetsQuery = query(collection(db, 'reminderSets'), where('userId', '==', userId));
-        const reminderSetsSnapshot = await getDocs(reminderSetsQuery);
-        const reminderSetsList: ReminderSet[] = [];
+    const handleDelete = async (taskId: string) => {
+        if (!reminderSet) return;
 
-        for (const reminderSetDoc of reminderSetsSnapshot.docs) {
-            const tasksCollection = collection(reminderSetDoc.ref, 'tasks');
-            const tasksSnapshot = await getDocs(tasksCollection);
-            const tasks = tasksSnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            } as Task));
-
-            reminderSetsList.push({
-                id: reminderSetDoc.id,
-                name: reminderSetDoc.data().name,
-                tasks: tasks
-            });
-        }
-
-        setReminderSets(reminderSetsList);
-    };
-
-    const handleDelete = async (reminderSetId: string, taskId: string) => {
         try {
-            await deleteDoc(doc(db, 'reminderSets', reminderSetId, 'tasks', taskId));
-            setReminderSets(prevSets => 
-                prevSets.map(set => 
-                    set.id === reminderSetId 
-                        ? {...set, tasks: set.tasks.filter(task => task.id !== taskId)}
-                        : set
-                )
+            await deleteDoc(doc(db, 'reminderSets', reminderSet.id, 'tasks', taskId));
+            setReminderSet(prevSet => 
+                prevSet ? {
+                    ...prevSet,
+                    tasks: prevSet.tasks.filter(task => task.id !== taskId)
+                } : null
             );
             alert('Task deleted successfully!');
         } catch (error) {
@@ -76,37 +89,42 @@ function TaskPage() {
         }
     };
 
-    const handleConfirm = (reminderSetId: string) => {
-        router.push(`/SetReminderTime?setId=${reminderSetId}`);
+    const handleConfirm = () => {
+        if (reminderSet) {
+            router.push(`/SetReminderTime?setId=${reminderSet.id}`);
+        }
     };
 
     if (!user) {
         return <div>Please log in to view your tasks.</div>;
     }
 
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+
+    if (!reminderSet) {
+        return <div>Reminder set not found.</div>;
+    }
+
     return (
         <div className={styles.container}>
-            <h1 className={styles.title}>Your Reminder Sets</h1>
-            {reminderSets.map((reminderSet) => (
-                <div key={reminderSet.id} className={styles.reminderSet}>
-                    <h2>{reminderSet.name}</h2>
-                    <div className={styles.cardContainer}>
-                        {reminderSet.tasks.map((task) => (
-                            <div key={task.id} className={styles.card}>
-                                <h3>{task.task}</h3>
-                                <p>Category: {task.category}</p>
-                                <p>Date: {task.date}</p>
-                                <button onClick={() => handleDelete(reminderSet.id, task.id)} className={styles.deleteButton}>
-                                    Delete
-                                </button>
-                            </div>
-                        ))}
+            <h1 className={styles.title}>{reminderSet.name}</h1>
+            <div className={styles.cardContainer}>
+                {reminderSet.tasks.map((task) => (
+                    <div key={task.id} className={styles.card}>
+                        <h3>{task.Task}</h3>
+                        <p>Category: {task.Category}</p>
+                        <p>Date: {task.Date}</p>
+                        <button onClick={() => handleDelete(task.id)} className={styles.deleteButton}>
+                            Delete
+                        </button>
                     </div>
-                    <button onClick={() => handleConfirm(reminderSet.id)} className={styles.confirmButton}>
-                        Confirm and Set Reminder Time
-                    </button>
-                </div>
-            ))}
+                ))}
+            </div>
+            <button onClick={handleConfirm} className={styles.confirmButton}>
+                Confirm and Set Reminder Time
+            </button>
         </div>
     );
 }

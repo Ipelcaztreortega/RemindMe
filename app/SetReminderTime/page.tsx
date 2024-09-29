@@ -106,7 +106,7 @@ function SetReminderTime() {
             });
 
             alert('Reminder preferences saved and reminders set!');
-            router.push('/Tasks');
+            router.push('/ViewReminders');
         } catch (error) {
             console.error('Error saving reminder preferences:', error);
             alert('Failed to save reminder preferences. Please try again.');
@@ -149,14 +149,14 @@ function SetReminderTime() {
                             required 
                         />
                     </label>
-                    <label>
+                    {/* <label>
                         Phone number for reminders:
                         <input 
                             type="tel" 
                             value={phoneNumber} 
                             onChange={(e) => setPhoneNumber(e.target.value)} 
                         />
-                    </label>
+                    </label> */}
                 </div>
                 <button type="submit" className={styles.submitButton}>Save Reminder Preferences</button>
             </form>

@@ -60,9 +60,9 @@ export default function Home() {
               const tasksRef = collection(reminderSetRef, 'tasks');
               for (const row of results.data as Array<{Category: string, Date: string, Task: string}>) {
                 await addDoc(tasksRef, {
-                  category: row.Category,
-                  date: row.Date,
-                  task: row.Task
+                  Category: row.Category,
+                  Date: row.Date,
+                  Task: row.Task
                 });
               }
               
