@@ -1,9 +1,10 @@
 'use client';
+
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { doc, getDoc, updateDoc, collection, getDocs } from 'firebase/firestore';
-import { db, auth } from '../../config/firebaseConfig';
-import styles from './SetReminderTime.module.css';
+import { db, auth } from '../../../config/firebaseConfig';
+import styles from '../SetReminderTime.module.css';
 
 interface Task {
     id: string;
@@ -22,34 +23,31 @@ interface ReminderSet {
     };
 }
 
-function SetReminderTime() {
+interface SetReminderTimeProps {
+    params: { setId: string }
+}
+
+export default function SetReminderTime({ params }: SetReminderTimeProps) {
+    const { setId } = params;
     const [reminderSet, setReminderSet] = useState<ReminderSet | null>(null);
     const [oneDay, setOneDay] = useState(false);
     const [oneWeek, setOneWeek] = useState(false);
     const [email, setEmail] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
-    const [setId, setSetId] = useState<string | null>(null);
     const router = useRouter();
-
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const searchParams = new URLSearchParams(window.location.search);
-            setSetId(searchParams.get('setId'));
-        }
-    }, []);
 
     useEffect(() => {
         const fetchReminderSet = async () => {
             if (!setId) {
                 alert('No reminder set ID provided');
-                router.push('/Tasks');
+                router.push('/ViewReminders');
                 return;
             }
 
             const reminderSetDoc = await getDoc(doc(db, 'reminderSets', setId));
             if (!reminderSetDoc.exists()) {
                 alert('Reminder set not found');
-                router.push('/Tasks');
+                router.push('/ViewReminders');
                 return;
             }
 
@@ -81,9 +79,7 @@ function SetReminderTime() {
             }
         };
 
-        if (setId) {
-            fetchReminderSet();
-        }
+        fetchReminderSet();
     }, [setId, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -171,5 +167,3 @@ function SetReminderTime() {
         </div>
     );
 }
-
-export default SetReminderTime;

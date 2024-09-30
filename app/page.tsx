@@ -67,7 +67,8 @@ export default function Home() {
               }
               
               alert('CSV file was successfully processed!');
-              router.push('/Tasks');
+              // Updated navigation to use the new dynamic route
+              router.push(`/Tasks/${reminderSetRef.id}`);
             } catch (error) {
               console.error('Error adding document: ', error);
               alert('Error uploading data to Firebase.');
