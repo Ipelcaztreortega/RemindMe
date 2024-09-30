@@ -1,4 +1,4 @@
-import { Firestore, collection, getDocs, Timestamp, query, where, updateDoc, DocumentSnapshot } from 'firebase/firestore';
+import { Firestore, collection, getDocs, Timestamp, QueryDocumentSnapshot} from 'firebase/firestore';
 import { sendEmail } from './emailService';
 
 interface Task {
@@ -12,7 +12,6 @@ interface ReminderSet {
         oneWeek: boolean;
     };
     contactEmail: string;
-    lastChecked?: Timestamp;
 }
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
@@ -23,62 +22,46 @@ export async function checkAndSendReminders(db: Firestore) {
     const tomorrow = new Timestamp(now.seconds + 24 * 60 * 60, now.nanoseconds);
 
     const reminderSetsCollection = collection(db, 'reminderSets');
-    const activeRemindersQuery = query(
-        reminderSetsCollection, 
-        where('reminderPreferences.oneDay', '==', true), 
-        where('reminderPreferences.oneWeek', '==', true)
-    );
+    const reminderSetsSnapshot = await getDocs(reminderSetsCollection);
 
-    const reminderSetsSnapshot = await getDocs(activeRemindersQuery);
-
-    // Process reminder sets in parallel
-    await Promise.all(reminderSetsSnapshot.docs.map(doc => processReminderSet(db, doc, now, tomorrow)));
+    for (const reminderSetDoc of reminderSetsSnapshot.docs) {
+        await processReminderSet(db, reminderSetDoc, now, tomorrow);
+    }
 }
 
-async function processReminderSet(db: Firestore, reminderSetDoc: DocumentSnapshot, now: Timestamp, tomorrow: Timestamp) {
+async function processReminderSet(db: Firestore, reminderSetDoc: QueryDocumentSnapshot, now: Timestamp, tomorrow: Timestamp) {
     try {
         const reminderSet = reminderSetDoc.data() as ReminderSet;
-        const lastChecked = reminderSet.lastChecked ? reminderSet.lastChecked : Timestamp.fromMillis(0);
-
         const tasksCollection = collection(db, 'reminderSets', reminderSetDoc.id, 'tasks');
-        const tasksQuery = query(tasksCollection, where('Date', '>', lastChecked.toDate()));
-        const tasksSnapshot = await getDocs(tasksQuery);
+        const tasksSnapshot = await getDocs(tasksCollection);
 
         for (const taskDoc of tasksSnapshot.docs) {
             const taskData = taskDoc.data() as Task;
             await checkAndSendTaskReminder(reminderSet, taskData, now, tomorrow);
         }
-
-        // Update the lastChecked timestamp
-        await updateDoc(reminderSetDoc.ref, { lastChecked: now });
     } catch (error) {
         console.error(`Error processing reminder set ${reminderSetDoc.id}:`, error);
     }
 }
 
 async function checkAndSendTaskReminder(reminderSet: ReminderSet, task: Task, now: Timestamp, tomorrow: Timestamp) {
-    const dueDate = task.Date ? Timestamp.fromDate(new Date(task.Date)) : null;
+    const dueDate = task.Date ? new Date(task.Date) : null;
 
     if (dueDate) {
-        if (shouldSendReminder(reminderSet, dueDate, now, tomorrow)) {
+        const oneDayBefore = new Date(dueDate.getTime() - ONE_DAY_MS);
+        const oneWeekBefore = new Date(dueDate.getTime() - ONE_WEEK_MS);
+
+        if (
+            (reminderSet.reminderPreferences.oneDay && isWithinNextDay(oneDayBefore, now, tomorrow)) ||
+            (reminderSet.reminderPreferences.oneWeek && isWithinNextDay(oneWeekBefore, now, tomorrow))
+        ) {
             await sendReminder(reminderSet, task);
         }
     }
 }
 
-function shouldSendReminder(reminderSet: ReminderSet, dueDate: Timestamp, now: Timestamp, tomorrow: Timestamp): boolean {
-    const dueDateMs = dueDate.toMillis();
-    const nowMs = now.toMillis();
-    const tomorrowMs = tomorrow.toMillis();
-
-    return (
-        (reminderSet.reminderPreferences.oneDay && isWithinNextDay(dueDateMs - ONE_DAY_MS, nowMs, tomorrowMs)) ||
-        (reminderSet.reminderPreferences.oneWeek && isWithinNextDay(dueDateMs - ONE_WEEK_MS, nowMs, tomorrowMs))
-    );
-}
-
-function isWithinNextDay(targetMs: number, nowMs: number, tomorrowMs: number): boolean {
-    return targetMs >= nowMs && targetMs <= tomorrowMs;
+function isWithinNextDay(date: Date, now: Timestamp, tomorrow: Timestamp): boolean {
+    return date >= now.toDate() && date <= tomorrow.toDate();
 }
 
 async function sendReminder(reminderSet: ReminderSet, task: Task) {
