@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { doc, getDoc, updateDoc, collection, getDocs } from 'firebase/firestore';
 import { db, auth } from '../../config/firebaseConfig';
 import styles from './SetReminderTime.module.css';
@@ -28,9 +28,15 @@ function SetReminderTime() {
     const [oneWeek, setOneWeek] = useState(false);
     const [email, setEmail] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
+    const [setId, setSetId] = useState<string | null>(null);
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const setId = searchParams.get('setId');
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const searchParams = new URLSearchParams(window.location.search);
+            setSetId(searchParams.get('setId'));
+        }
+    }, []);
 
     useEffect(() => {
         const fetchReminderSet = async () => {
@@ -75,7 +81,9 @@ function SetReminderTime() {
             }
         };
 
-        fetchReminderSet();
+        if (setId) {
+            fetchReminderSet();
+        }
     }, [setId, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {

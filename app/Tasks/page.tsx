@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { collection, getDocs, deleteDoc, doc, getDoc } from 'firebase/firestore';
 import { db, auth } from '../../config/firebaseConfig';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import styles from './Tasks.module.css';
 
 interface Task {
@@ -23,13 +23,19 @@ function TaskPage() {
     const [user, setUser] = useState(auth.currentUser);
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const setId = searchParams.get('setId');
+    const [setId, setSetId] = useState<string | null>(null);
 
-    const fetchReminderSet = useCallback(async (setId: string) => {
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const searchParams = new URLSearchParams(window.location.search);
+            setSetId(searchParams.get('setId'));
+        }
+    }, []);
+
+    const fetchReminderSet = useCallback(async (id: string) => {
         setIsLoading(true);
         try {
-            const reminderSetDocRef = doc(db, 'reminderSets', setId);
+            const reminderSetDocRef = doc(db, 'reminderSets', id);
             const reminderSetDoc = await getDoc(reminderSetDocRef);
             
             if (reminderSetDoc.exists()) {
@@ -95,18 +101,6 @@ function TaskPage() {
         }
     };
 
-    if (!user) {
-        return <div>Please log in to view your tasks.</div>;
-    }
-
-    if (isLoading) {
-        return <div>Loading...</div>;
-    }
-
-    if (!reminderSet) {
-        return <div>Reminder set not found.</div>;
-    }
-
     const handleDeleteReminderSet = async () => {
         if (!reminderSet) return;
 
@@ -131,6 +125,19 @@ function TaskPage() {
             }
         }
     };
+
+    if (!user) {
+        return <div>Please log in to view your tasks.</div>;
+    }
+
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+
+    if (!reminderSet) {
+        return <div>Reminder set not found.</div>;
+    }
+
     return (
         <div className={styles.container}>
             <h1 className={styles.title}>{reminderSet.name}</h1>

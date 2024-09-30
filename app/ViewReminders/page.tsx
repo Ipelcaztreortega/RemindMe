@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db, auth } from '../../config/firebaseConfig';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import styles from './ViewReminders.module.css';
 
 interface ReminderSet {
@@ -47,6 +46,10 @@ function ViewRemindersPage() {
         }
     };
 
+    const handleReminderSetClick = (setId: string) => {
+        router.push(`/Tasks?setId=${setId}`);
+    };
+
     if (!user) {
         return <div>Please log in to view your reminders.</div>;
     }
@@ -63,10 +66,12 @@ function ViewRemindersPage() {
             ) : (
                 <ul className={styles.reminderList}>
                     {reminderSets.map((reminderSet) => (
-                        <li key={reminderSet.id} className={styles.reminderItem}>
-                            <Link href={`/Tasks?setId=${reminderSet.id}`}>
-                                {reminderSet.name}
-                            </Link>
+                        <li 
+                            key={reminderSet.id} 
+                            className={styles.reminderItem}
+                            onClick={() => handleReminderSetClick(reminderSet.id)}
+                        >
+                            {reminderSet.name}
                         </li>
                     ))}
                 </ul>
