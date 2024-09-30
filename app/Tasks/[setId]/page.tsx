@@ -1,9 +1,10 @@
 'use client';
+
 import React, { useEffect, useState, useCallback } from 'react';
 import { collection, getDocs, deleteDoc, doc, getDoc } from 'firebase/firestore';
-import { db, auth } from '../../config/firebaseConfig';
+import { db, auth } from '../../../config/firebaseConfig';
 import { useRouter } from 'next/navigation';
-import styles from './Tasks.module.css';
+import styles from '../Tasks.module.css';
 
 interface Task {
     id: string;
@@ -18,19 +19,16 @@ interface ReminderSet {
     tasks: Task[];
 }
 
-function TaskPage() {
+interface TaskPageProps {
+    params: { setId: string }
+}
+
+export default function TaskPage({ params }: TaskPageProps) {
+    const { setId } = params;
     const [reminderSet, setReminderSet] = useState<ReminderSet | null>(null);
     const [user, setUser] = useState(auth.currentUser);
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
-    const [setId, setSetId] = useState<string | null>(null);
-
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const searchParams = new URLSearchParams(window.location.search);
-            setSetId(searchParams.get('setId'));
-        }
-    }, []);
 
     const fetchReminderSet = useCallback(async (id: string) => {
         setIsLoading(true);
@@ -75,7 +73,7 @@ function TaskPage() {
         });
 
         return () => unsubscribe();
-    }, [router, setId, fetchReminderSet]);
+    }, [setId, fetchReminderSet, router]);
 
     const handleDelete = async (taskId: string) => {
         if (!reminderSet) return;
@@ -97,7 +95,7 @@ function TaskPage() {
 
     const handleConfirm = () => {
         if (reminderSet) {
-            router.push(`/SetReminderTime?setId=${reminderSet.id}`);
+            router.push(`/SetReminderTime/${reminderSet.id}`);
         }
     };
 
@@ -164,5 +162,3 @@ function TaskPage() {
         </div>
     );
 }
-
-export default TaskPage;
