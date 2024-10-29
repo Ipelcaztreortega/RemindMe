@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { signInWithEmailAndPassword} from 'firebase/auth';
 import { auth } from '../../config/firebaseConfig';
 import { useRouter } from 'next/navigation';
 import styles from './Login.module.css';
@@ -21,43 +21,33 @@ function LoginPage() {
         }
     };
 
-    const handleGoogleLogin = async () => {
-        const provider = new GoogleAuthProvider();
-        try {
-            await signInWithPopup(auth, provider);
-            router.push('/');
-        } catch (error) {
-            console.error('Error logging in with Google:', error);
-            alert('Failed to log in with Google. Please try again.');
-        }
-    };
-
     return (
         <div className={styles.LoginContainer}>
-            <div>
-                <h1>Login</h1>
-                <form onSubmit={handleLogin}>
-                    <label>
+            <div className={styles.LoginBox}>
+                <h1 className={styles.Title}>Login</h1>
+                <form className={styles.Form} onSubmit={handleLogin}>
+                    <label className={styles.Label}>
                         Email:
                         <input 
+                            className={styles.Input}
                             type="email" 
                             value={email} 
                             onChange={(e) => setEmail(e.target.value)} 
                             required 
                         />
                     </label>
-                    <label>
+                    <label className={styles.Label}>
                         Password:
                         <input 
+                            className={styles.Input}
                             type="password" 
                             value={password} 
                             onChange={(e) => setPassword(e.target.value)} 
                             required 
                         />
                     </label>
-                    <button type="submit">Login</button>
+                    <button className={`${styles.Button} ${styles.SubmitButton}`} type="submit">Login</button>
                 </form>
-                <button onClick={handleGoogleLogin}>Login with Google</button>
             </div>
         </div>
     );

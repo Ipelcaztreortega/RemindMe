@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { createUserWithEmailAndPassword} from 'firebase/auth';
 import { auth } from '../../config/firebaseConfig';
 import { useRouter } from 'next/navigation';
 import styles from './Signup.module.css';
@@ -23,20 +23,10 @@ function SignupPage() {
         }
     };
 
-    const handleGoogleSignup = async () => {
-        const provider = new GoogleAuthProvider();
-        try {
-            await signInWithPopup(auth, provider);
-            router.push('/');
-        } catch (error) {
-            console.error('Error signing up with Google:', error);
-            alert('Failed to sign up with Google. Please try again.');
-        }
-    };
 
     return (
         <div className={styles.SignUpContainer}>
-            <div>
+            <div className={styles.SignUpForm}>
                 <h1>Sign up</h1>
                 <form onSubmit={handleSignup}>
                     <label>
@@ -67,9 +57,8 @@ function SignupPage() {
                     </label>
                     <button type="submit">Sign Up</button>
                 </form>
-                <button onClick={handleGoogleSignup}>Sign Up with Google</button>
             </div>
-            <div>
+            <div className={styles.SignUpInfo}>
                 <h1>Why should I sign up?</h1>
                 <ol>
                     <li>You can delete reminders</li>

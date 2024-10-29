@@ -104,7 +104,6 @@ export default function TaskPage({ params }: TaskPageProps) {
 
         if (window.confirm('Are you sure you want to delete this entire reminder set? This action cannot be undone.')) {
             try {
-                // First, delete all tasks in the reminder set
                 const tasksCollection = collection(db, 'reminderSets', reminderSet.id, 'tasks');
                 const tasksSnapshot = await getDocs(tasksCollection);
                 const deleteTasks = tasksSnapshot.docs.map(doc => 
@@ -112,7 +111,6 @@ export default function TaskPage({ params }: TaskPageProps) {
                 );
                 await Promise.all(deleteTasks);
 
-                // Then, delete the reminder set document
                 await deleteDoc(doc(db, 'reminderSets', reminderSet.id));
 
                 alert('Reminder set deleted successfully!');
@@ -125,15 +123,15 @@ export default function TaskPage({ params }: TaskPageProps) {
     };
 
     if (!user) {
-        return <div>Please log in to view your tasks.</div>;
+        return <div className={styles.container}>Please log in to view your tasks.</div>;
     }
 
     if (isLoading) {
-        return <div>Loading...</div>;
+        return <div className={styles.container}>Loading...</div>;
     }
 
     if (!reminderSet) {
-        return <div>Reminder set not found.</div>;
+        return <div className={styles.container}>Reminder set not found.</div>;
     }
 
     return (

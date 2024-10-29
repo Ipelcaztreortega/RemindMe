@@ -65,13 +65,11 @@ export default function SetReminderTime({ params }: SetReminderTimeProps) {
                 reminderPreferences: reminderSetDoc.data().reminderPreferences
             });
 
-            // Set initial states based on existing preferences
             if (reminderSetDoc.data().reminderPreferences) {
                 setOneDay(reminderSetDoc.data().reminderPreferences.oneDay);
                 setOneWeek(reminderSetDoc.data().reminderPreferences.oneWeek);
             }
 
-            // Set initial contact info
             const user = auth.currentUser;
             if (user) {
                 setEmail(user.email || '');
@@ -93,8 +91,6 @@ export default function SetReminderTime({ params }: SetReminderTimeProps) {
                 contactPhone: phoneNumber
             });
 
-            // Here you would typically set up the actual reminders
-            // This could involve creating a cloud function or using a service like Firebase Cloud Messaging
             console.log('Reminder preferences saved. Setting up reminders...');
 
             reminderSet.tasks.forEach(task => {
@@ -118,7 +114,7 @@ export default function SetReminderTime({ params }: SetReminderTimeProps) {
     };
 
     if (!reminderSet) {
-        return <div>Loading...</div>;
+        return <div className={styles.container}>Loading...</div>;
     }
 
     return (
@@ -153,14 +149,16 @@ export default function SetReminderTime({ params }: SetReminderTimeProps) {
                             required 
                         />
                     </label>
-                    {/* <label>
+                    {/* Uncomment this section if you want to include phone number input
+                    <label>
                         Phone number for reminders:
                         <input 
                             type="tel" 
                             value={phoneNumber} 
                             onChange={(e) => setPhoneNumber(e.target.value)} 
                         />
-                    </label> */}
+                    </label>
+                    */}
                 </div>
                 <button type="submit" className={styles.submitButton}>Save Reminder Preferences</button>
             </form>

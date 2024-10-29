@@ -3,12 +3,13 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { auth } from '../../config/firebaseConfig';
 import { signOut, User } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import styles from './Navbar.module.css';
 
 function Navbar() {
     const [user, setUser] = useState<User | null>(null);
     const router = useRouter();
+    const pathname = usePathname();
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((currentUser) => {
@@ -28,28 +29,48 @@ function Navbar() {
     };
 
     return (
-        <div className={styles.navContainer}>
-            <div>
+        <nav className={styles.navContainer}>
+            <div className={styles.logo}>
                 <h1>RemindMe</h1>
             </div>
-            <div>
-                <ul>
-                    <Link href='/'><li>HOME</li></Link>
-                    <Link href='/HowItWorks'><li>HOW IT WORKS</li></Link>
-                    {user ? (
-                        <>
-                            <Link href='/ViewReminders'><li>VIEW REMINDERS</li></Link>
-                            <li onClick={handleLogout} style={{cursor: 'pointer'}}>LOG OUT</li>
-                        </>
-                    ) : (
-                        <>
-                            <Link href='/Signup'><li>SIGN UP</li></Link>
-                            <Link href='/Login'><li>LOG IN</li></Link>
-                        </>
-                    )}
-                </ul>
-            </div>
-        </div>
+            <ul className={styles.navList}>
+                <li>
+                    <Link href='/' className={`${styles.navItem} ${pathname === '/' ? styles.activeNavItem : ''}`}>
+                        HOME
+                    </Link>
+                </li>
+                <li>
+                    <Link href='/HowItWorks' className={`${styles.navItem} ${pathname === '/HowItWorks' ? styles.activeNavItem : ''}`}>
+                        HOW IT WORKS
+                    </Link>
+                </li>
+                {user ? (
+                    <>
+                        <li>
+                            <Link href='/ViewReminders' className={`${styles.navItem} ${pathname === '/ViewReminders' ? styles.activeNavItem : ''}`}>
+                                VIEW REMINDERS
+                            </Link>
+                        </li>
+                        <li>
+                            <button onClick={handleLogout} className={styles.logoutButton}>LOG OUT</button>
+                        </li>
+                    </>
+                ) : (
+                    <>
+                        <li>
+                            <Link href='/Signup' className={`${styles.navItem} ${pathname === '/Signup' ? styles.activeNavItem : ''}`}>
+                                SIGN UP
+                            </Link>
+                        </li>
+                        <li>
+                            <Link href='/Login' className={`${styles.navItem} ${pathname === '/Login' ? styles.activeNavItem : ''}`}>
+                                LOG IN
+                            </Link>
+                        </li>
+                    </>
+                )}
+            </ul>
+        </nav>
     );
 }
 

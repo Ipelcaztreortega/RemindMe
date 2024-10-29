@@ -1,0 +1,71 @@
+/* ViewReminders.module.css */
+.container {
+    --primary-blue: #3498db;
+    --light-blue: #5dade2;
+    --dark-grey: #2c3e50;
+    --light-grey: #ecf0f1;
+    --white: #ffffff;
+    --black: #000000;
+
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: var(--white);
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+    color: var(--primary-blue);
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.reminderList {
+    list-style-type: none;
+    padding: 0;
+}
+
+.reminderItem {
+    background-color: var(--light-grey);
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.reminderItem:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.reminderItem a {
+    display: block;
+    padding: 1rem;
+    color: var(--dark-grey);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.reminderItem a:hover {
+    color: var(--primary-blue);
+}
+
+.loadingMessage,
+.errorMessage {
+    text-align: center;
+    color: var(--dark-grey);
+    font-size: 1.2rem;
+    margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+    .container {
+    margin: 1rem;
+    padding: 1rem;
+    }
+
+    .title {
+    font-size: 1.5rem;
+    }
+}

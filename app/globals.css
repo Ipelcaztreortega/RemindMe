@@ -1,5 +1,40 @@
+/* globals.css */
+:root {
+  --primary-blue: #3498db;
+  --light-blue: #5dade2;
+  --dark-grey: #2c3e50;
+  --light-grey: #ecf0f1;
+  --white: #ffffff;
+  --black: #000000;
+}
+
 * {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  color: var(--dark-grey);
+  background: var(--light-grey);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+  padding: 2rem;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
 }

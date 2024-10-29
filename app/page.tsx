@@ -48,7 +48,6 @@ export default function Home() {
           header: true,
           complete: async (results) => {
             try {
-              // Create a new reminder set document
               const reminderSetRef = doc(collection(db, 'reminderSets'));
               await setDoc(reminderSetRef, {
                 name: reminderSetName,
@@ -56,7 +55,6 @@ export default function Home() {
                 createdAt: new Date()
               });
 
-              // Add tasks to the reminder set
               const tasksRef = collection(reminderSetRef, 'tasks');
               for (const row of results.data as Array<{Category: string, Date: string, Task: string}>) {
                 await addDoc(tasksRef, {
@@ -67,7 +65,6 @@ export default function Home() {
               }
               
               alert('CSV file was successfully processed!');
-              // Updated navigation to use the new dynamic route
               router.push(`/Tasks/${reminderSetRef.id}`);
             } catch (error) {
               console.error('Error adding document: ', error);
@@ -81,12 +78,12 @@ export default function Home() {
   };
 
   if (!user) {
-    return <div>Please log in to upload reminders.</div>;
+    return <div className={styles.container}>Please log in to upload reminders.</div>;
   }
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Begin your reminders</h1>
+      <h1 className={styles.title}>Begin Your Reminders</h1>
       <div className={styles.uploadSection}>
         <h2>What are these reminders for?</h2>
         <input

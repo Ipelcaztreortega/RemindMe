@@ -1,128 +1,119 @@
+/* Tasks.module.css */
 .container {
+    --primary-blue: #3498db;
+    --light-blue: #5dade2;
+    --dark-grey: #2c3e50;
+    --light-grey: #ecf0f1;
+    --white: #ffffff;
+    --black: #000000;
+    --danger-red: #e74c3c;
+    --success-green: #2ecc71;
+
+    max-width: 1200px;
+    margin: 0 auto;
     padding: 2rem;
 }
 
 .title {
-    font-size: 2rem;
+    font-size: 2.5rem;
+    color: var(--primary-blue);
     margin-bottom: 2rem;
     text-align: center;
 }
 
 .cardContainer {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
 }
 
 .card {
-    border: 1px solid #ccc;
+    background-color: var(--white);
     border-radius: 8px;
-    padding: 1rem;
-    background-color: #f9f9f9;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.card h2 {
-    font-size: 1.2rem;
-    margin-bottom: 0.5rem;
-}
-
-.card p {
-    margin: 0.5rem 0;
-}
-
-
-.deleteButton:hover {
-    background-color: #ff3333;
-}
-
-.container {
-    padding: 2rem;
-}
-
-.title {
-    font-size: 2rem;
-    margin-bottom: 2rem;
-    text-align: center;
-}
-
-.reminderSet {
-    margin-bottom: 2rem;
-    padding: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-}
-
-.reminderSet h2 {
-    margin-bottom: 1rem;
-}
-
-.cardContainer {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-.card {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 1rem;
-    background-color: #f9f9f9;
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 .card h3 {
     font-size: 1.2rem;
-    margin-bottom: 0.5rem;
+    color: var(--dark-grey);
+    margin-bottom: 1rem;
 }
 
 .card p {
     margin: 0.5rem 0;
+    color: var(--dark-grey);
 }
 
-.deleteButton, .confirmButton {
-    margin-top: 1rem;
-    padding: 0.5rem 1rem;
+.deleteButton, .confirmButton, .deleteSetButton {
+    padding: 0.75rem 1.5rem;
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
 }
 
 .deleteButton {
-    background-color: #ff4d4d;
-    color: white;
-}
-
-.confirmButton {
-    background-color: #4CAF50;
-    color: white;
-    display: block;
-    width: 100%;
+    background-color: var(--danger-red);
+    color: var(--white);
+    margin-top: 1rem;
 }
 
 .deleteButton:hover {
-    background-color: #ff3333;
-}
-
-.confirmButton:hover {
-    background-color: #45a049;
+    background-color: #c0392b;
 }
 
 .buttonContainer {
     display: flex;
     justify-content: space-between;
-    margin-top: 20px;
+    align-items: center;
+    margin-top: 2rem;
+}
+
+.confirmButton {
+    background-color: var(--success-green);
+    color: var(--white);
+    flex-grow: 1;
+    margin-right: 1rem;
+}
+
+.confirmButton:hover {
+    background-color: #27ae60;
 }
 
 .deleteSetButton {
-    background-color: #ff4d4d;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
+    background-color: var(--danger-red);
+    color: var(--white);
 }
 
 .deleteSetButton:hover {
-    background-color: #ff1a1a;
+    background-color: #c0392b;
+}
+
+@media (max-width: 768px) {
+    .container {
+    padding: 1rem;
+    }
+
+    .title {
+    font-size: 2rem;
+    }
+
+    .buttonContainer {
+    flex-direction: column;
+    }
+
+    .confirmButton, .deleteSetButton {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 1rem;
+    }
 }

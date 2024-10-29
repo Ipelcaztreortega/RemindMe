@@ -48,18 +48,22 @@ function ViewRemindersPage() {
     };
 
     if (!user) {
-        return <div>Please log in to view your reminders.</div>;
+        return <div className={styles.container}>
+            <p className={styles.errorMessage}>Please log in to view your reminders.</p>
+        </div>;
     }
 
     if (isLoading) {
-        return <div>Loading...</div>;
+        return <div className={styles.container}>
+            <p className={styles.loadingMessage}>Loading...</p>
+        </div>;
     }
 
     return (
         <div className={styles.container}>
             <h1 className={styles.title}>Your Reminder Sets</h1>
             {reminderSets.length === 0 ? (
-                <p>You do not have any reminder sets yet.</p>
+                <p className={styles.errorMessage}>You do not have any reminder sets yet.</p>
             ) : (
                 <ul className={styles.reminderList}>
                     {reminderSets.map((reminderSet) => (

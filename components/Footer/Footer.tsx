@@ -1,16 +1,18 @@
-import React from 'react'
+import React from 'react';
+import Link from 'next/link';
 import styles from './Footer.module.css';
+
 function Footer() {
     return (
-        <div className={styles.FooterContainer}>
-            <div>
-                <h1>Privacy</h1>
-            </div>
-            <div>
-                <h1>Feedback</h1>
-            </div>
-        </div>
-    )
+        <footer className={styles.FooterContainer}>
+            <Link href="/privacy" className={styles.FooterLink}>
+                Privacy
+            </Link>
+            <Link href="/feedback" className={styles.FooterLink}>
+                Feedback
+            </Link>
+        </footer>
+    );
 }
 
-export default Footer
+export default Footer;
